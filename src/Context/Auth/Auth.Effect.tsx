@@ -1,21 +1,24 @@
 import { Dispatch, useCallback } from "react";
-import { AuthActionUnion } from "./Auth.Actions";
+import { AuthActionUnion, AuthActions } from "./Auth.Actions";
 import { IAuthEffects } from "./Interfaces/IAuthEffects";
+import { FormikHelpers, FormikValues } from "formik";
 import AuthService from '../../Data/Services/AuthService';
 
 export type AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>) => IAuthEffects;
 
 export const AuthEffects: AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>) => ({
-  login: useCallback(async (email: string, password: string) => {
+  login: useCallback(async (email: string, password: string, helpers: FormikHelpers<FormikValues>) => {
     try {
-      const response = await AuthService.login({ email, password });
-      console.log(response);
+      dispatch(AuthActions.startLoading());
+      const { data } = await AuthService.login({ email, password });
+      dispatch(AuthActions.loginSuccess(data.data));
     } catch(err) {
-      if (err.response) {
-        console.log(err.response.data.errors);
+      const res = err.response;
+      if (res && res.data && res.data.errors) {
+        dispatch(AuthActions.loginError(res.data.errors.map((x: any) => x.message)));
       }
+    } finally {
+      helpers.setSubmitting(false);
     }
-    //call axios
-    //use dispatch
   }, [])
 });

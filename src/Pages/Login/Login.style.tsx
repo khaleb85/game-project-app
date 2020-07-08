@@ -23,7 +23,7 @@ export const styles = StyleSheet.create({
   },
   formContainer: {
     flex: 1,
-    marginTop: 24,
+    marginTop: 12,
   },
   passwordInput: {
     marginTop: 16,
@@ -43,4 +43,9 @@ export const styles = StyleSheet.create({
     alignSelf: 'center',
     marginBottom: 8,
   },
+  errorMessage: {
+    marginTop: 8,
+    color: '#ff3d71',
+    textAlign: 'center'
+  }
 });
