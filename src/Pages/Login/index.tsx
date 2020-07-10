@@ -70,6 +70,7 @@ const Login: FC = () => {
                     label={translate('email').toLocaleUpperCase()}
                     placeholder={translate('email')}
                     status='control'
+                    disabled={authContext.isLoading}
                   />
                   <Input
                     name="password"
@@ -78,6 +79,7 @@ const Login: FC = () => {
                     placeholder={translate('password')}
                     label={translate('password').toLocaleUpperCase()}
                     status='control'
+                    disabled={authContext.isLoading}
                   />
                   {
                     authContext.errorMessage
@@ -118,6 +120,7 @@ const Login: FC = () => {
                   status='control'
                   accessoryLeft={GoogleIcon}
                   disabled={authContext.isLoading}
+                  onPress={() => { authContext.effects && authContext.effects.loginAsGoogle() }}
                 />
                 <Button
                   appearance='ghost'

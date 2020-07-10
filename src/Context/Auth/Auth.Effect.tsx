@@ -2,6 +2,7 @@ import { Dispatch, useCallback } from "react";
 import { AuthActionUnion, AuthActions } from "./Auth.Actions";
 import { IAuthEffects } from "./Interfaces/IAuthEffects";
 import { FormikHelpers, FormikValues } from "formik";
+import { GoogleSignin } from "@react-native-community/google-signin";
 import AuthService from '../../Data/Services/AuthService';
 
 export type AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>) => IAuthEffects;
@@ -20,5 +21,20 @@ export const AuthEffects: AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>
     } finally {
       helpers.setSubmitting(false);
     }
+  }, []),
+
+  loginAsGoogle: useCallback(async () => {
+    try {
+      dispatch(AuthActions.startLoading());
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      console.log('verified');
+      const userInfo = await GoogleSignin.signIn();
+      console.log('info', userInfo);
+      dispatch(AuthActions.loginSuccess({}));
+      await AuthService.loginAsGoogle({ idToken: userInfo.idToken, userId: userInfo.user.id });
+    } catch(err) {
+      console.log('err', JSON.stringify(err));
+    }
+
   }, [])
 });
