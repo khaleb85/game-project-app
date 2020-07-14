@@ -136,6 +136,7 @@ const Login: FC = () => {
                   status='control'
                   accessoryLeft={TwitterIcon}
                   disabled={authContext.isLoading}
+                  onPress={() => { authContext.effects && authContext.effects.loginAsTwitter() }}
                 />
               </View>
             </View>

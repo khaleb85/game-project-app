@@ -4,6 +4,8 @@ import { IAuthEffects } from "./Interfaces/IAuthEffects";
 import { FormikHelpers, FormikValues } from "formik";
 import { GoogleSignin } from "@react-native-community/google-signin";
 import { LoginManager, AccessToken } from 'react-native-fbsdk';
+import { TwitterLogin } from 'react-native-login-twitter';
+import { TWITTER_API_KEY, TWITTER_API_SECRET_KEY } from 'react-native-dotenv';
 import AuthService from '../../Data/Services/AuthService';
 
 export type AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>) => IAuthEffects;
@@ -53,6 +55,21 @@ export const AuthEffects: AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>
       }
       
       dispatch(AuthActions.loginSuccess({}));
+    } catch(err) {
+      console.log('err', JSON.stringify(err));
+    }
+  }, []),
+
+  loginAsTwitter: useCallback(async () => {
+    try {
+      dispatch(AuthActions.startLoading());
+      console.log('twtiter', TWITTER_API_KEY);
+      const init = await TwitterLogin.init(TWITTER_API_KEY, TWITTER_API_SECRET_KEY);
+      console.log('i', init);
+
+      const result = await TwitterLogin.logIn();
+      console.log(result);
+
     } catch(err) {
       console.log('err', JSON.stringify(err));
     }
