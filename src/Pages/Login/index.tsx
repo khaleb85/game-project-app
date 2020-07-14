@@ -5,10 +5,10 @@ import { ImageOverlay, Input, Form } from '../../Components';
 import { Button, Text, Icon, Spinner } from '@ui-kitten/components';
 import { withAuthContext } from '../../Context/Auth';
 import { AuthContext } from '../../Context/Auth/Auth.Provider';
+import { FormikHelpers, FormikValues } from 'formik';
 import { translate } from '../../Utils/Locales';
 
 import { styles } from './Login.style';
-import { FormikHelpers, FormikValues } from 'formik';
 
 const GoogleIcon = (props: any) => (
   <Icon {...props} name="google" />
@@ -128,6 +128,7 @@ const Login: FC = () => {
                   status='control'
                   accessoryLeft={FaceBookIcon}
                   disabled={authContext.isLoading}
+                  onPress={() => { authContext.effects && authContext.effects.loginAsFacebook() }}
                 />
                 <Button
                   appearance='ghost'
