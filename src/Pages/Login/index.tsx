@@ -7,6 +7,11 @@ import { withAuthContext } from '../../Context/Auth';
 import { AuthContext } from '../../Context/Auth/Auth.Provider';
 import { FormikHelpers, FormikValues } from 'formik';
 import { translate } from '../../Utils/Locales';
+import {
+  ENABLE_EXTERNAL_LOGIN_GOOGLE,
+  ENABLE_EXTERNAL_LOGIN_TWITTER,
+  ENABLE_EXTERNAL_LOGIN_FACEBOOK
+} from 'react-native-dotenv'
 
 import { styles } from './Login.style';
 
@@ -25,7 +30,7 @@ const TwitterIcon = (props: any) => (
 const initialValues = { email: '', password: '' };
 
 const Login: FC = () => {
-  const authContext = React.useContext(AuthContext)
+  const authContext = React.useContext(AuthContext);
 
   const submitHandler = (values: any, formikHelpers: FormikHelpers<FormikValues>) => {
     authContext.effects && authContext.effects.login(values.email, values.password, formikHelpers);
@@ -114,30 +119,44 @@ const Login: FC = () => {
                 Sign with a social account
               </Text>
               <View style={styles.socialAuthButtonsContainer}>
-                <Button
-                  appearance='ghost'
-                  size='giant'
-                  status='control'
-                  accessoryLeft={GoogleIcon}
-                  disabled={authContext.isLoading}
-                  onPress={() => { authContext.effects && authContext.effects.loginAsGoogle() }}
-                />
-                <Button
-                  appearance='ghost'
-                  size='giant'
-                  status='control'
-                  accessoryLeft={FaceBookIcon}
-                  disabled={authContext.isLoading}
-                  onPress={() => { authContext.effects && authContext.effects.loginAsFacebook() }}
-                />
-                <Button
-                  appearance='ghost'
-                  size='giant'
-                  status='control'
-                  accessoryLeft={TwitterIcon}
-                  disabled={authContext.isLoading}
-                  onPress={() => { authContext.effects && authContext.effects.loginAsTwitter() }}
-                />
+                {
+                  ENABLE_EXTERNAL_LOGIN_GOOGLE === 'true'
+                  ? <Button
+                      appearance='ghost'
+                      size='giant'
+                      status='control'
+                      accessoryLeft={GoogleIcon}
+                      disabled={authContext.isLoading}
+                      onPress={() => { authContext.effects && authContext.effects.loginAsGoogle() }}
+                    />
+                  : null
+                }
+                
+                {
+                  ENABLE_EXTERNAL_LOGIN_FACEBOOK === 'true'
+                  ? <Button
+                      appearance='ghost'
+                      size='giant'
+                      status='control'
+                      accessoryLeft={FaceBookIcon}
+                      disabled={authContext.isLoading}
+                      onPress={() => { authContext.effects && authContext.effects.loginAsFacebook() }}
+                    />
+                  : null
+                }
+                
+                {
+                  ENABLE_EXTERNAL_LOGIN_TWITTER === 'true'
+                  ? <Button
+                      appearance='ghost'
+                      size='giant'
+                      status='control'
+                      accessoryLeft={TwitterIcon}
+                      disabled={authContext.isLoading}
+                      onPress={() => { authContext.effects && authContext.effects.loginAsTwitter() }}
+                    />
+                  : null
+                }
               </View>
             </View>
               </>

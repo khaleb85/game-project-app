@@ -13,7 +13,7 @@ export type AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>) => IAuthEffe
 export const AuthEffects: AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>) => ({
   login: useCallback(async (email: string, password: string, helpers: FormikHelpers<FormikValues>) => {
     try {
-      dispatch(AuthActions.startLoading());
+      dispatch(AuthActions.setLoading(true));
       const { data } = await AuthService.login({ email, password });
       dispatch(AuthActions.loginSuccess(data.data));
     } catch(err) {
@@ -28,13 +28,18 @@ export const AuthEffects: AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>
 
   loginAsGoogle: useCallback(async () => {
     try {
-      dispatch(AuthActions.startLoading());
+      dispatch(AuthActions.setLoading(true));
       await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-      console.log('verified');
       const userInfo = await GoogleSignin.signIn();
-      console.log('info', userInfo);
-      dispatch(AuthActions.loginSuccess({}));
-      await AuthService.loginAsGoogle({ idToken: userInfo.idToken, userId: userInfo.user.id });
+
+      if (!userInfo) { dispatch(AuthActions.setLoading(false)); }
+
+      const result = await AuthService.loginAsGoogle({ idToken: userInfo.idToken, userId: userInfo.user.id });
+
+      if (!result || !result.data) { dispatch(AuthActions.setLoading(false)); }
+
+      console.log(result.data.data);
+      dispatch(AuthActions.loginSuccess(result.data.data));
     } catch(err) {
       console.log('err', JSON.stringify(err));
     }
@@ -42,19 +47,22 @@ export const AuthEffects: AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>
 
   loginAsFacebook: useCallback(async () => {
     try {
-      dispatch(AuthActions.startLoading());
+      dispatch(AuthActions.setLoading(true));
       const permissions = ['public_profile', 'email'];
       const resultWithPermissions = await LoginManager.logInWithPermissions(permissions);
 
-      if (!resultWithPermissions.isCancelled) {
-        const asd = await AccessToken.getCurrentAccessToken();
+      if (!resultWithPermissions.isCancelled) { dispatch(AuthActions.setLoading(false)); }
 
-        console.log('asd: ', asd);
-        dispatch(AuthActions.loginSuccess({}));
-        return;
-      }
-      
-      dispatch(AuthActions.loginSuccess({}));
+      const currentUser = await AccessToken.getCurrentAccessToken();
+      if (currentUser == null) { dispatch(AuthActions.setLoading(false)); }
+
+      var result = await AuthService.loginAsFacebook({ token: currentUser?.accessToken });
+
+      if (!result || !result.data) { dispatch(AuthActions.setLoading(false)); }
+
+      console.log(result.data.data);
+      dispatch(AuthActions.loginSuccess(result.data.data));
+      return;
     } catch(err) {
       console.log('err', JSON.stringify(err));
     }
@@ -62,13 +70,21 @@ export const AuthEffects: AuthEffectsType = (dispatch: Dispatch<AuthActionUnion>
 
   loginAsTwitter: useCallback(async () => {
     try {
-      dispatch(AuthActions.startLoading());
-      console.log('twtiter', TWITTER_API_KEY);
-      const init = await TwitterLogin.init(TWITTER_API_KEY, TWITTER_API_SECRET_KEY);
-      console.log('i', init);
+      dispatch(AuthActions.setLoading(true));
+      await TwitterLogin.init(TWITTER_API_KEY, TWITTER_API_SECRET_KEY);
+      const twitterLogin = await TwitterLogin.logIn();
 
-      const result = await TwitterLogin.logIn();
-      console.log(result);
+      if (!twitterLogin || !twitterLogin.authToken) { dispatch(AuthActions.setLoading(false)); }
+
+      var result = await AuthService.loginAsTwitter({
+        authToken: twitterLogin?.authToken,
+        authTokenSecret: twitterLogin.authTokenSecret
+      });
+
+      if (!result || !result.data) { dispatch(AuthActions.setLoading(false)); }
+
+      console.log(result.data.data);
+      dispatch(AuthActions.setLoading(false));
 
     } catch(err) {
       console.log('err', JSON.stringify(err));
